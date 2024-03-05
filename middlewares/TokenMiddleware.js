@@ -59,6 +59,7 @@ const AccessTokenVerifier = async (req, res, next) => {
 				req.username = decode.data.username;
 				req.id = decode.data.id;
 				req.role_id = decode.data.role_id;
+				req.role = decode.data.role;
 				req.access_token = decryptedAccessToken;
 			}
 		);
@@ -151,6 +152,7 @@ const RefreshTokenVerifier = async (req, res, next) => {
 				req.username = decode.data.username;
 				req.id = decode.data.id;
 				req.role_id = decode.data.role_id;
+				req.role = decode.data.role;
 				req.refresh_token = decryptedRefreshToken;
 			}
 		);

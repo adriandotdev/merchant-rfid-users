@@ -15,7 +15,7 @@ const logger = require("./config/winston");
 // Global Middlewares
 const swaggerDocument = YAML.load("./swagger.yaml");
 
-app.use("/login/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+app.use("/admin_rfid/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 app.use(helmet());
 app.use(helmet.frameguard({ action: "deny" }));
 
@@ -36,9 +36,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan("combined", { stream: logger.stream }));
 app.use(cookieParser());
 
-require("./api/account.api")(app);
+require("./api/rfid_users.api")(app);
 
-app.use("*", (req, res, next) => {
+app.use("*", (req, res) => {
 	logger.error({
 		API_NOT_FOUND: {
 			api: req.baseUrl,

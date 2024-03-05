@@ -18,6 +18,7 @@ module.exports = class Crypto {
 			const decipher = crypto.createDecipheriv(algorithm, key, iv);
 			let decryptedData = decipher.update(hash, "base64", "utf-8");
 			decryptedData += decipher.final("utf-8");
+
 			return decryptedData;
 		} catch (err) {
 			throw new HttpUnauthorized("Invalid Token", []);
