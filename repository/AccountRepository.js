@@ -36,7 +36,7 @@ module.exports = class AccountRepository {
 					}
 
 					connection.query(
-						`SELECT id, username, password FROM users WHERE username = ? AND password = MD5(?)`,
+						`SELECT id, username, password, role FROM users WHERE username = ? AND password = MD5(?)`,
 						[username, password],
 						(err, result) => {
 							if (err) reject(err);
