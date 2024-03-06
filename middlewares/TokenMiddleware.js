@@ -67,8 +67,12 @@ const AccessTokenVerifier = async (req, res, next) => {
 		logger.info({
 			ACCESS_TOKEN_VERIFIER_MIDDLEWARE: {
 				message: "SUCCESS",
+				role: req.role,
+				username: req.username,
+				id: req.id,
 			},
 		});
+
 		next();
 	} catch (err) {
 		logger.error({
