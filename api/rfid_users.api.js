@@ -9,7 +9,7 @@ module.exports = (app) => {
 	const service = new RFIDUsersService();
 
 	app.get(
-		"/admin_rfid/api/v1/users",
+		"/admin_rfid/api/v1/rfid/accounts",
 		[AccessTokenVerifier],
 		async (req, res) => {
 			logger.info({ GET_RFID_USERS_API_REQUEST: { message: "SUCCESS" } });
@@ -47,10 +47,10 @@ module.exports = (app) => {
 	);
 
 	app.get(
-		"/admin_rfid/api/v1/users/search",
+		"/admin_rfid/api/v1/rfid/accounts/search",
 		[AccessTokenVerifier],
 		async (req, res) => {
-			const { user_id, filter, limit, offset } = req.query;
+			const { filter, limit, offset } = req.query;
 
 			try {
 				if (req.role !== "CPO_OWNER") throw new HttpForbidden("Forbidden", []);
