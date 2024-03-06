@@ -28,7 +28,7 @@ module.exports = class Email {
 				email: this._email_address,
 				from: config.nodemailer.user,
 				to: this._email_address,
-				otp: this._data.otp,
+				otp: this._data.password,
 			},
 		});
 
@@ -36,8 +36,8 @@ module.exports = class Email {
 			let htmlFormat = `
 			  <h1>ParkNcharge</h1>
 	
-			  <h2>PLEASE DO NOT SHARE THIS OTP TO ANYONE</h2>
-			  ${this._data.otp}
+			  <h2>This is your auto-generated password. Kindly login to your account, and change this with your prefer password.</h2>
+			  ${this._data.password}
 			  
 			  <p>Kind regards,</p>
 			  <p><b>ParkNcharge</b></p>

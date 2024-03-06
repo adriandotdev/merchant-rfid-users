@@ -76,4 +76,43 @@ module.exports = (app) => {
 			}
 		}
 	);
+
+	app.post(
+		"/admin_rfid/api/v1/rfid/accounts",
+		[AccessTokenVerifier],
+		async (req, res) => {
+			logger.info({
+				ADD_RFID_ACCOUNTS_REQUEST: {
+					message: "SUCCESS",
+				},
+			});
+
+			try {
+				const result = await service.AddRFIDAccount({
+					id: req.id,
+					...req.body,
+				});
+
+				logger.info({
+					ADD_RFID_ACCOUNTS_RESPONSE: {
+						message: "SUCCESS",
+					},
+				});
+
+				return res
+					.status(200)
+					.json({ status: 200, data: result, message: "Success" });
+			} catch (err) {
+				logger.error({ ADD_RFID_ACCOUNTS_ERROR: { message: err.message } });
+
+				logger.error(err);
+
+				return res.status(err.status || 500).json({
+					status: err.status || 500,
+					data: err.data || [],
+					message: err.message || "Internal Server Error",
+				});
+			}
+		}
+	);
 };
