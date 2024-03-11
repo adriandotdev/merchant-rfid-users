@@ -10,12 +10,41 @@ const {
 } = require("../utils/HttpError");
 
 module.exports = class RFIDUsersService {
+	/**
+	 * @type {RFIDUsersRepository} The repository used for managing RFID users.
+	 * @private
+	 */
 	#repository;
 
+	/**
+	 * Creates an instance of RFIDUserHandler.
+	 * @constructor
+	 */
 	constructor() {
 		this.#repository = new RFIDUsersRepository();
 	}
 
+	/**
+	 * Retrieves RFID users based on specified parameters.
+	 *
+	 * @async
+	 * @method
+	 * @param {Object} params - Parameters for filtering RFID users.
+	 * @param {string} params.user_id - The user ID for filtering.
+	 * @param {number} params.limit - The maximum number of users to retrieve.
+	 * @param {number} params.offset - The offset for paginating through the results.
+	 * @returns {Promise<Array>} A promise that resolves to an array of RFID user objects.
+	 * @throws {Error} Throws an error if there is an issue with retrieving RFID users.
+	 *
+	 * @example
+	 * const result = await GetRFIDUsers({
+	 *   user_id: '123',
+	 *   limit: 10,
+	 *   offset: 0
+	 * });
+	 * console.log(result);
+	 * // Output: [{ id: '123', name: 'John Doe', ... }, { id: '456', name: 'Jane Smith', ... }, ...]
+	 */
 	async GetRFIDUsers({ user_id, limit, offset }) {
 		const result = await this.#repository.GetRFIDUsers({
 			user_id,
@@ -36,6 +65,21 @@ module.exports = class RFIDUsersService {
 		return rfidUsers;
 	}
 
+	/**
+	 * Filter RFID users based on RFID tag or contact number.
+	 *
+	 * @async
+	 * @method
+	 * @param {Object} params Parameters for filtering RFID users.
+	 * @param {number} params.user_id User ID to determine which RFID users to filter.
+	 * @param {string} params.filter Value to be used for filtering.
+	 * @param {number} params.limit Number of RFID users to return.
+	 * @param {number} params.offset Start number of the row to be returned.
+	 *
+	 * @returns {Promise<Array>}
+	 *
+	 * @throws {HttpInternalServerError}
+	 */
 	async FilterRFIDUsers({ user_id, filter, limit, offset }) {
 		const result = await this.#repository.FilterRFIDUserByRFIDOrContactNumber({
 			user_id,
@@ -57,6 +101,26 @@ module.exports = class RFIDUsersService {
 		return rfidUsers;
 	}
 
+	/**
+	 * Add new RFID account based on the rfid card tag provided.
+	 * @async
+	 * @method
+	 * @param {Object} data
+	 * @param {number} data.id ID of the merchant creating the new RFID account.
+	 * @param {string} data.name Name of the RFID user.
+	 * @param {string} data.address Address of the RFID user.
+	 * @param {string} data.email_address Email address of the RFID user.
+	 * @param {string} data.mobile_number Mobile number of the RFID user.
+	 * @param {string} data.vehicle_plate_number Plate number associated to user.
+	 * @param {string} data.vehicle_model Vehicle model owned by the user.
+	 * @param {string} data.username Username for the new account
+	 * @param {string} data.rfid RFID tag of the user.
+	 *
+	 * @returns {Promise<Response>}
+	 *
+	 * @throws {HttpBadRequest} If one of the request body properties is invalid.
+	 * @throws {HttpInternalServerError} If there are issues in the server.
+	 */
 	async AddRFIDAccount(data) {
 		const password = pwGenerator.generate({
 			length: 8,
