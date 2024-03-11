@@ -1,4 +1,12 @@
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({
+	debug:
+		process.env.NODE_ENV === "dev" || process.env.NODE_ENV === "test"
+			? true
+			: true,
+	path: path.resolve(__dirname, ".env"),
+});
+
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");

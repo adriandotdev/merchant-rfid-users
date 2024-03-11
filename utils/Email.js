@@ -1,15 +1,17 @@
 const nodemailer = require("nodemailer");
-const config = require("../config/config");
 const winston = require("../config/winston");
 
 const transporter = nodemailer.createTransport({
-	name: config.nodemailer?.name,
-	host: config.nodemailer.host,
-	port: config.nodemailer.port,
-	secure: config.nodemailer.secure,
+	name: process.env.NODEMAILER_NAME || "",
+	host: process.env.NODEMAILER_HOST,
+	port: process.env.NODEMAILER_PORT,
+	secure:
+		process.env.NODE_ENV === "dev" || process.env.NODE_ENV === "test"
+			? false
+			: true,
 	auth: {
-		user: config.nodemailer.user,
-		pass: config.nodemailer.password,
+		user: process.env.NODEMAILER_USER,
+		pass: process.env.NODEMAILER_PASSWORD,
 	},
 	tls: {
 		rejectUnauthorized: false,
@@ -26,9 +28,9 @@ module.exports = class Email {
 		winston.info({
 			CLASS_EMAIL_SEND_OTP_METHOD: {
 				email: this._email_address,
-				from: config.nodemailer.user,
+				from: process.env.NODEMAILER_USER,
 				to: this._email_address,
-				otp: this._data.password,
+				otp: this._data.otp,
 			},
 		});
 
@@ -36,8 +38,8 @@ module.exports = class Email {
 			let htmlFormat = `
 			  <h1>ParkNcharge</h1>
 	
-			  <h2>This is your auto-generated password. Kindly login to your account, and change this with your prefer password.</h2>
-			  ${this._data.password}
+			  <h2>PLEASE DO NOT SHARE THIS OTP TO ANYONE</h2>
+			  ${this._data.otp}
 			  
 			  <p>Kind regards,</p>
 			  <p><b>ParkNcharge</b></p>
@@ -46,7 +48,7 @@ module.exports = class Email {
 			let textFormat = `ParkNcharge\n\nPLEASE DO NOT SHARE THIS OTP TO ANYONE\n\nKind regards,\nParkNCharge`;
 			// send mail with defined transport object
 			const info = await transporter.sendMail({
-				from: config.nodemailer.user, // sender address
+				from: process.env.NODEMAILER_USER, // sender address
 				to: this._email_address, // list of receivers
 				subject: "ParkNcharge Credentials (no-reply)", // Subject line
 				text: textFormat, // plain text body

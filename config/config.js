@@ -1,5 +1,3 @@
-require("dotenv").config();
-
 const config = {}; //variable init of configuration files
 config.server = {};
 config.db = {};

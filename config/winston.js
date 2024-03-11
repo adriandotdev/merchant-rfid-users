@@ -1,5 +1,3 @@
-require("dotenv").config();
-
 const { createLogger, format, transports, addColors } = require("winston");
 const path = require("path");
 const { splat, combine, timestamp, printf, json } = format;

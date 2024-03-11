@@ -1,4 +1,3 @@
-require("dotenv").config();
 const crypto = require("crypto");
 const { HttpUnauthorized } = require("./HttpError");
 const algorithm = process.env.CRYPTO_ALGORITHM;
