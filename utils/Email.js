@@ -30,7 +30,6 @@ module.exports = class Email {
 				email: this._email_address,
 				from: process.env.NODEMAILER_USER,
 				to: this._email_address,
-				otp: this._data.otp,
 			},
 		});
 
@@ -38,8 +37,9 @@ module.exports = class Email {
 			let htmlFormat = `
 			  <h1>ParkNcharge</h1>
 	
-			  <h2>PLEASE DO NOT SHARE THIS OTP TO ANYONE</h2>
-			  ${this._data.otp}
+			  <h2>PLEASE DO NOT SHARE THIS PASSWORD TO ANYONE</h2>
+			  <p>Kindly change this password immediately after your first login</p>
+			  ${this._data.password}
 			  
 			  <p>Kind regards,</p>
 			  <p><b>ParkNcharge</b></p>
