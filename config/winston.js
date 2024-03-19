@@ -5,11 +5,10 @@ const myFormat = printf(({ timestamp, level, message, meta }) => {
 	if (meta && meta instanceof Error) {
 		return `[${timestamp}] [${level}] : ${message} ${meta.stack}`;
 	}
-	return `[${timestamp}] [${level}] : ${
-		typeof message === "object" && message !== null
-			? JSON.stringify(message)
-			: message
-	}`;
+	if (typeof message === "object" && message !== null) {
+		return `[${timestamp}] [${level}] : ${JSON.stringify(message, null, 2)}`;
+	}
+	return `[${timestamp}] [${level}] : ${message}`;
 });
 
 require("winston-daily-rotate-file");
