@@ -163,4 +163,26 @@ module.exports = class RFIDUsersService {
 
 		return STATUS;
 	}
+
+	async GetUserByID(cpoOwnerID, userID) {
+		const data = await this.#repository.GetUserByID(cpoOwnerID, userID);
+
+		if (!data.length || !data[0])
+			throw new HttpBadRequest("User ID does not exists");
+
+		const user = {
+			id: data[0].id,
+			name: Crypto.Decrypt(data[0].name),
+			address: Crypto.Decrypt(data[0].address),
+			email_address: Crypto.Decrypt(data[0].email_address),
+			mobile_number: Crypto.Decrypt(data[0].mobile_number),
+			vehicle_plate_number: Crypto.Decrypt(data[0].vehicle_plate_number),
+			vehicle_brand: Crypto.Decrypt(data[0].vehicle_brand),
+			vehicle_model: Crypto.Decrypt(data[0].vehicle_model),
+			username: data[0].username,
+			rfid: data[0].rfid,
+		};
+
+		return user;
+	}
 };
