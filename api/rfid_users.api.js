@@ -1,4 +1,4 @@
-const { validationResult, body } = require("express-validator");
+const { validationResult, body, query } = require("express-validator");
 const RFIDUsersService = require("../services/RFIDUsersService");
 const logger = require("../config/winston");
 
@@ -72,7 +72,14 @@ module.exports = (app) => {
 
 	app.get(
 		"/admin_rfid/api/v1/rfid/accounts/search",
-		[AccessTokenVerifier],
+		[
+			AccessTokenVerifier,
+			query("filter")
+				.notEmpty()
+				.escape()
+				.trim()
+				.withMessage("Missing required property: filter"),
+		],
 		async (req, res) => {
 			const { filter, limit, offset } = req.query;
 
