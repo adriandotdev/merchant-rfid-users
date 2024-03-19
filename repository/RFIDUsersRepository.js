@@ -43,7 +43,9 @@ module.exports = class RFIDUsersRepository {
 		INNER JOIN rfid_cards 
 		ON rfid_cards.user_driver_id = user_drivers.id
 		WHERE user_drivers.cpo_owner_id = (SELECT id FROM cpo_owners WHERE user_id = ?)
-		AND rfid_card_tag = '${filter}' OR mobile_number = '${Crypto.Encrypt(filter)}'
+		AND rfid_card_tag LIKE '${filter}%' OR mobile_number = '${Crypto.Encrypt(
+			filter
+		)}'
 		LIMIT ? OFFSET ?`;
 
 		return new Promise((resolve, reject) => {
