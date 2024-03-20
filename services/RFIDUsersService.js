@@ -185,4 +185,52 @@ module.exports = class RFIDUsersService {
 
 		return user;
 	}
+
+	async UpdateUserByID({ user_id, data }) {
+		const VALID_INPUTS = [
+			"name",
+			"address",
+			"email",
+			"mobile_number",
+			"plate_number",
+			"brand",
+			"model",
+			"username",
+		];
+
+		if (!Object.keys(data).every((value) => VALID_INPUTS.includes(value)))
+			throw new HttpBadRequest(`Valid inputs are: ${VALID_INPUTS.join(", ")}`);
+
+		if (Object.keys(data).length === 0) {
+			// Check if data object is empty
+			return "NO_CHANGES_APPLIED";
+		}
+
+		let newData = {};
+
+		// Encrypt all of the updated data except the username.
+		Object.keys(data).forEach((key) => {
+			// DO NOT ENCRYPT property username
+			if (key !== "username") newData[key] = Crypto.Encrypt(data[key]);
+			else newData[key] = data[key];
+		});
+
+		// Setting up the query
+		let query = "SET";
+
+		const dataEntries = Object.entries(newData);
+
+		for (const [key, value] of dataEntries) {
+			query += ` ${key} = '${value}',`;
+		}
+
+		const updateResult = await this.#repository.UpdateUserByID({
+			user_id,
+			query: query.slice(0, query.length - 1),
+		});
+
+		if (updateResult.affectedRows > 0) return "USER_SUCCESSFULLY_UPDATED";
+
+		return updateResult;
+	}
 };

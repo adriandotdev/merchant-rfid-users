@@ -197,6 +197,8 @@ module.exports = (app) => {
 			});
 
 			try {
+				if (req.role !== "CPO_OWNER") throw new HttpForbidden("Forbidden", []);
+
 				validate(req, res);
 
 				const result = await service.AddRFIDAccount({
@@ -232,70 +234,98 @@ module.exports = (app) => {
 		[
 			AccessTokenVerifier,
 			body("name")
+				.optional()
 				.notEmpty()
+				.withMessage("Missing required property: name")
 				.escape()
-				.trim()
-				.withMessage("Missing required property: name"),
+				.trim(),
 			body("address")
+				.optional()
 				.notEmpty()
+				.withMessage("Missing required property: address")
 				.escape()
-				.trim()
-				.withMessage("Missing required property: address"),
-			body("email_address")
+				.trim(),
+			body("email")
+				.optional()
 				.notEmpty()
-				.escape()
-				.trim()
 				.withMessage("Missing required property: email_address")
+				.escape()
+				.trim()
 				.isEmail()
 				.withMessage("Please provide a valid email_address"),
 			body("mobile_number")
+				.optional()
 				.notEmpty()
+				.withMessage("Missing required property: mobile_number")
 				.escape()
 				.trim()
-				.withMessage("Missing required property: mobile_number")
 				.custom((value) => String(value).match(/^\b09\d{9}$/)) // example format: 09234412234
 				.withMessage(
-					"Invalid mobile number. Valid mobile numbers are starting in +63 followed by 10 digits or starting in 09 followed by 9 digits."
+					"Invalid mobile number. Valid mobile numbers is starting in 09 followed by 9 digits."
 				),
-			body("vehicle_plate_number")
+			body("plate_number")
+				.optional()
 				.notEmpty()
+				.withMessage("Missing required property: vehicle_plate_number")
 				.escape()
 				.trim()
-				.withMessage("Missing required property: vehicle_plate_number")
 				.isLength({ min: 7, max: 7 })
 				.withMessage("Property vehicle_plate_number must be length of 7")
 				.custom((value) => String(value).match(/^[a-zA-Z0-9\-]+$/)) // accepts letters, numbers, and hyphen
 				.withMessage(
 					"vehicle_plate_number must only consist of letters, numbers, and hyphens"
 				),
-			body("vehicle_brand")
+			body("brand")
+				.optional()
 				.notEmpty()
+				.withMessage("Missing required property: vehicle_brand")
 				.escape()
-				.trim()
-				.withMessage("Missing required property: vehicle_brand"),
-			body("vehicle_model")
+				.trim(),
+			body("model")
+				.optional()
 				.notEmpty()
+				.withMessage("Missing required property: vehicle_model")
 				.escape()
-				.trim()
-				.withMessage("Missing required property: vehicle_model"),
+				.trim(),
 			body("username")
+				.optional()
 				.notEmpty()
+				.withMessage("Missing required property: username")
 				.escape()
-				.trim()
-				.withMessage("Missing required property: username"),
-			body("rfid")
-				.notEmpty()
-				.escape()
-				.trim()
-				.withMessage("Missing required property: rfid")
-				.isLength({ min: 12, max: 12 })
-				.withMessage("RFID must have a length of 12")
-				.custom((value) => String(value).match(/^[A-Z0-9]+$/)) // accepts capital letters and numbers
-				.withMessage(
-					"Please provide a valid RFID consists of letters or numbers"
-				),
+				.trim(),
 		],
-		async (req, res) => {}
+		/**
+		 * @param {import('express').Request} req
+		 * @param {import('express').Response} res
+		 */
+		async (req, res) => {
+			try {
+				if (req.role !== "CPO_OWNER") throw new HttpForbidden("Forbidden", []);
+
+				validate(req, res);
+
+				const { user_id } = req.params;
+				const data = req.body;
+
+				const result = await service.UpdateUserByID({
+					user_id,
+					data,
+				});
+				return res
+					.status(200)
+					.json({ status: 200, data: result, message: "Success" });
+			} catch (err) {
+				logger.error({ UPDATE_RFID_USER_ERROR: { message: err.message } });
+
+				logger.error(err);
+
+				return res.status(err.status || 500).json({
+					status: err.status || 500,
+					data: err.data || [],
+					message: err.message || "Internal Server Error",
+				});
+			}
+		}
 	);
 
 	app.get(
@@ -321,6 +351,8 @@ module.exports = (app) => {
 			const { user_id } = req.params;
 
 			try {
+				if (req.role !== "CPO_OWNER") throw new HttpForbidden("Forbidden", []);
+
 				validate(req, res);
 
 				if (!user_id)

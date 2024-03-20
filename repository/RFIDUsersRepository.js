@@ -75,7 +75,7 @@ module.exports = class RFIDUsersRepository {
 
 	GetUserByID(cpoOwnerID, userID) {
 		const QUERY = `SELECT 
-			user_drivers.id,
+			users.id,
 			name,
 			address,
 			email AS email_address,
@@ -96,6 +96,24 @@ module.exports = class RFIDUsersRepository {
 
 		return new Promise((resolve, reject) => {
 			mysql.query(QUERY, [cpoOwnerID, userID], (err, result) => {
+				if (err) {
+					reject(err);
+				}
+
+				resolve(result);
+			});
+		});
+	}
+
+	UpdateUserByID({ user_id, query }) {
+		const QUERY = `UPDATE users AS u
+		INNER JOIN user_drivers AS ud ON u.id = ud.user_id
+		INNER JOIN user_driver_vehicles AS udv ON ud.id = udv.user_driver_id 
+		${query} WHERE u.id = ?
+	`;
+
+		return new Promise((resolve, reject) => {
+			mysql.query(QUERY, [user_id], (err, result) => {
 				if (err) {
 					reject(err);
 				}
