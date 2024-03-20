@@ -1,8 +1,16 @@
+/**
+ * This class contains all of the services
+ * related to the RFID users for Merchant POV.
+ *
+ * @CreatedBy Adrian Nads L. Marcelo
+ * @LastModified 2024-03-20
+ */
+
 const RFIDUsersRepository = require("../repository/RFIDUsersRepository");
 
-// utils
-const Crypto = require("../utils/Crypto");
+// Utilities
 const pwGenerator = require("generate-password");
+const Crypto = require("../utils/Crypto");
 const Email = require("../utils/Email");
 const {
 	HttpBadRequest,
@@ -103,6 +111,7 @@ module.exports = class RFIDUsersService {
 
 	/**
 	 * Add new RFID account based on the rfid card tag provided.
+	 *
 	 * @async
 	 * @method
 	 * @param {Object} data
@@ -164,6 +173,16 @@ module.exports = class RFIDUsersService {
 		return STATUS;
 	}
 
+	/**
+	 * Retrieves a user by ID
+	 *
+	 * @async
+	 * @method
+	 * @param {Number} cpoOwnerID CPO Owner ID
+	 * @param {Number} userID RFID account user ID
+	 *
+	 * @returns {Object} user
+	 */
 	async GetUserByID(cpoOwnerID, userID) {
 		const data = await this.#repository.GetUserByID(cpoOwnerID, userID);
 
@@ -187,12 +206,15 @@ module.exports = class RFIDUsersService {
 	}
 
 	/**
+	 * Update RFID user account by ID
 	 *
+	 * @async
+	 * @method
 	 * @param {Object} payload
-	 * @param {Number} payload.user_id User ID
+	 * @param {Number} payload.user_id ID of the RFID user
 	 * @param {Object} payload.data User information to be updated
 	 *
-	 * @returns
+	 * @returns {String} SUCCESS | NO_CHANGES_APPLIED
 	 */
 	async UpdateUserByID({ user_id, data }) {
 		const VALID_INPUTS = [
@@ -242,6 +264,19 @@ module.exports = class RFIDUsersService {
 		return updateResult;
 	}
 
+	/**
+	 * Updates RFID account status by ID
+	 *
+	 * @async
+	 * @method
+	 * @param {Object} data
+	 * @param {String} data.status Account status of the user. Valid status are: ACTIVE | INACTIVE
+	 * @param {Number} data.user_id ID of the RFID user to be updated
+	 *
+	 * @returns {String} SUCCESS | NO_CHANGES_APPLIED
+	 *
+	 * @throws {HttpBadRequest} When status is invalid
+	 */
 	async UpdateUserAccountStatusByID({ status, user_id }) {
 		const VALID_STATUSES = ["ACTIVE", "INACTIVE"];
 
