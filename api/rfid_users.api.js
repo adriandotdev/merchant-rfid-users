@@ -381,4 +381,53 @@ module.exports = (app) => {
 			}
 		}
 	);
+
+	app.patch(
+		"/admin_rfid/api/v1/rfid/accounts/:status/:user_id",
+		[
+			AccessTokenVerifier,
+			param("status")
+				.notEmpty()
+				.withMessage("Missing required property: status"),
+		],
+		/**
+		 * @param {import('express').Request} req
+		 * @param {import('express').Response} res
+		 */
+		async (req, res) => {
+			logger.info({
+				UPDATE_RFID_USER_STATUS: {
+					status: req.params.status,
+					user_id: req.params.user_id,
+				},
+			});
+
+			try {
+				if (req.role !== "CPO_OWNER") throw new HttpForbidden("Forbidden", []);
+
+				const { status, user_id } = req.params;
+
+				const result = await service.UpdateUserAccountStatusByID({
+					status,
+					user_id,
+				});
+
+				logger.info({ UPDATE_RFID_USER_STATUS_RESPONSE: { result } });
+
+				return res
+					.status(200)
+					.json({ status: 200, data: result, message: "Success" });
+			} catch (err) {
+				logger.error({ UPDATE_RFID_USER_ERROR: { message: err.message } });
+
+				logger.error(err);
+
+				return res.status(err.status || 500).json({
+					status: err.status || 500,
+					data: err.data || [],
+					message: err.message || "Internal Server Error",
+				});
+			}
+		}
+	);
 };

@@ -122,4 +122,19 @@ module.exports = class RFIDUsersRepository {
 			});
 		});
 	}
+
+	UpdateUserAccountStatusByID({ status, user_id }) {
+		const QUERY = `UPDATE users
+		SET user_status = ?, date_modified = NOW()
+		WHERE id = ?`;
+
+		return new Promise((resolve, reject) => {
+			mysql.query(QUERY, [status, user_id], (err, result) => {
+				if (err) {
+					reject(err);
+				}
+				resolve(result);
+			});
+		});
+	}
 };

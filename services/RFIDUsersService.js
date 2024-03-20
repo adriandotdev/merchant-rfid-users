@@ -186,6 +186,14 @@ module.exports = class RFIDUsersService {
 		return user;
 	}
 
+	/**
+	 *
+	 * @param {Object} payload
+	 * @param {Number} payload.user_id User ID
+	 * @param {Object} payload.data User information to be updated
+	 *
+	 * @returns
+	 */
 	async UpdateUserByID({ user_id, data }) {
 		const VALID_INPUTS = [
 			"name",
@@ -229,8 +237,28 @@ module.exports = class RFIDUsersService {
 			query: query.slice(0, query.length - 1),
 		});
 
-		if (updateResult.affectedRows > 0) return "USER_SUCCESSFULLY_UPDATED";
+		if (updateResult.affectedRows > 0) return "SUCCESS";
 
 		return updateResult;
+	}
+
+	async UpdateUserAccountStatusByID({ status, user_id }) {
+		const VALID_STATUSES = ["ACTIVE", "INACTIVE"];
+
+		// Check if 'status' is in valid statuses
+		if (!VALID_STATUSES.includes(status))
+			throw new HttpBadRequest(
+				`Valid statuses are: ${VALID_STATUSES.join(", ")}`
+			);
+
+		const updateResult = await this.#repository.UpdateUserAccountStatusByID({
+			status,
+			user_id,
+		});
+
+		// Check if there are affected rows
+		if (updateResult.affectedRows > 0) return "SUCCESS";
+
+		return "NO_CHANGES_APPLIED";
 	}
 };
