@@ -153,24 +153,13 @@ module.exports = class RFIDUsersService {
 		const emailSender = new Email(data.email_address, { password });
 		const result = await this.#repository.AddRFIDAccount(accountData);
 
-		const STATUS = result[0][0].STATUS;
+		const status = result[0][0].STATUS;
 
-		const ERRORS = [
-			"EXISTING_EMAIL_ADDRESS",
-			"EXISTING_MOBILE_NUMBER",
-			"EXISTING_PLATE_NUMBER",
-			"EXISTING_USERNAME",
-			"RFID_DOES_NOT_EXISTS",
-			"RFID_ALREADY_OWNED",
-		];
-
-		if (ERRORS.includes(STATUS)) throw new HttpBadRequest(STATUS, []);
-
-		if (STATUS !== "SUCCESS") throw new HttpInternalServerError(STATUS, []);
+		if (status !== "SUCCESS") throw new HttpBadRequest(status, []);
 
 		await emailSender.SendOTP();
 
-		return STATUS;
+		return status;
 	}
 
 	/**
