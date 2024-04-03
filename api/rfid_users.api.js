@@ -3,7 +3,12 @@ const RFIDUsersService = require("../services/RFIDUsersService");
 const logger = require("../config/winston");
 
 // middlewares
-const { AccessTokenVerifier } = require("../middlewares/TokenMiddleware");
+const TokenMiddleware = require("../middlewares/TokenMiddleware");
+const {
+	ROLES,
+	RoleManagementMiddleware,
+} = require("../middlewares/RoleManagementMiddleware");
+
 const {
 	HttpForbidden,
 	HttpUnprocessableEntity,
@@ -15,6 +20,8 @@ const {
  */
 module.exports = (app) => {
 	const service = new RFIDUsersService();
+	const tokenMiddleware = new TokenMiddleware();
+	const roleMiddleware = new RoleManagementMiddleware();
 
 	/**
 	 * This function will be used by the express-validator for input validation,
@@ -35,7 +42,10 @@ module.exports = (app) => {
 
 	app.get(
 		"/admin_rfid/api/v1/rfid/accounts",
-		[AccessTokenVerifier],
+		[
+			tokenMiddleware.AccessTokenVerifier(),
+			roleMiddleware.CheckRole(ROLES.CPO_OWNER),
+		],
 		/**
 		 * @param {import('express').Request} req
 		 * @param {import('express').Response} res
@@ -78,7 +88,8 @@ module.exports = (app) => {
 	app.get(
 		"/admin_rfid/api/v1/rfid/accounts/search",
 		[
-			AccessTokenVerifier,
+			tokenMiddleware.AccessTokenVerifier(),
+			roleMiddleware.CheckRole(ROLES.CPO_OWNER),
 			query("filter")
 				.notEmpty()
 				.escape()
@@ -120,7 +131,8 @@ module.exports = (app) => {
 	app.post(
 		"/admin_rfid/api/v1/rfid/accounts",
 		[
-			AccessTokenVerifier,
+			tokenMiddleware.AccessTokenVerifier(),
+			roleMiddleware.CheckRole(ROLES.CPO_OWNER),
 			body("name")
 				.notEmpty()
 				.escape()
@@ -178,8 +190,6 @@ module.exports = (app) => {
 				.escape()
 				.trim()
 				.withMessage("Missing required property: rfid")
-				.isLength({ min: 12, max: 12 })
-				.withMessage("RFID must have a length of 12")
 				.custom((value) => String(value).match(/^[A-Z0-9]+$/)) // accepts capital letters and numbers
 				.withMessage(
 					"Please provide a valid RFID consists of letters or numbers"
@@ -232,7 +242,8 @@ module.exports = (app) => {
 	app.patch(
 		"/admin_rfid/api/v1/rfid/accounts/:user_id",
 		[
-			AccessTokenVerifier,
+			tokenMiddleware.AccessTokenVerifier(),
+			roleMiddleware.CheckRole(ROLES.CPO_OWNER),
 			body("name")
 				.optional()
 				.notEmpty()
@@ -331,7 +342,8 @@ module.exports = (app) => {
 	app.get(
 		"/admin_rfid/api/v1/rfid/accounts/:user_id",
 		[
-			AccessTokenVerifier,
+			tokenMiddleware.AccessTokenVerifier(),
+			roleMiddleware.CheckRole(ROLES.CPO_OWNER),
 			param("user_id")
 				.notEmpty()
 				.escape()
@@ -385,7 +397,8 @@ module.exports = (app) => {
 	app.patch(
 		"/admin_rfid/api/v1/rfid/accounts/:status/:user_id",
 		[
-			AccessTokenVerifier,
+			tokenMiddleware.AccessTokenVerifier(),
+			roleMiddleware.CheckRole(ROLES.CPO_OWNER),
 			param("status")
 				.notEmpty()
 				.withMessage("Missing required property: status"),
