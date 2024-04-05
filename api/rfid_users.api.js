@@ -41,7 +41,7 @@ module.exports = (app) => {
 	}
 
 	app.get(
-		"/admin_rfid/api/v1/rfid/accounts",
+		"/merchant_rfid_users/api/v1/rfid/accounts",
 		[
 			tokenMiddleware.AccessTokenVerifier(),
 			roleMiddleware.CheckRole(ROLES.CPO_OWNER),
@@ -86,7 +86,7 @@ module.exports = (app) => {
 	);
 
 	app.get(
-		"/admin_rfid/api/v1/rfid/accounts/search",
+		"/merchant_rfid_users/api/v1/rfid/accounts/search",
 		[
 			tokenMiddleware.AccessTokenVerifier(),
 			roleMiddleware.CheckRole(ROLES.CPO_OWNER),
@@ -129,7 +129,7 @@ module.exports = (app) => {
 	);
 
 	app.post(
-		"/admin_rfid/api/v1/rfid/accounts",
+		"/merchant_rfid_users/api/v1/rfid/accounts",
 		[
 			tokenMiddleware.AccessTokenVerifier(),
 			roleMiddleware.CheckRole(ROLES.CPO_OWNER),
@@ -240,7 +240,7 @@ module.exports = (app) => {
 	);
 
 	app.patch(
-		"/admin_rfid/api/v1/rfid/accounts/:user_id",
+		"/merchant_rfid_users/api/v1/rfid/accounts/:user_id",
 		[
 			tokenMiddleware.AccessTokenVerifier(),
 			roleMiddleware.CheckRole(ROLES.CPO_OWNER),
@@ -340,7 +340,7 @@ module.exports = (app) => {
 	);
 
 	app.get(
-		"/admin_rfid/api/v1/rfid/accounts/:user_id",
+		"/merchant_rfid_users/api/v1/rfid/accounts/:user_id",
 		[
 			tokenMiddleware.AccessTokenVerifier(),
 			roleMiddleware.CheckRole(ROLES.CPO_OWNER),
@@ -395,7 +395,7 @@ module.exports = (app) => {
 	);
 
 	app.patch(
-		"/admin_rfid/api/v1/rfid/accounts/:status/:user_id",
+		"/merchant_rfid_users/api/v1/rfid/accounts/:status/:user_id",
 		[
 			tokenMiddleware.AccessTokenVerifier(),
 			roleMiddleware.CheckRole(ROLES.CPO_OWNER),
