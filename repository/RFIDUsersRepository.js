@@ -3,18 +3,23 @@ const Crypto = require("../utils/Crypto");
 
 module.exports = class RFIDUsersRepository {
 	GetRFIDUsers({ user_id, limit, offset }) {
-		const QUERY = `SELECT ROW_NUMBER() OVER () AS 'row_number', 
-		user_drivers.id, 
-		name, address, 
-		email, 
-		mobile_number, 
-		balance, 
-		rfid_card_tag AS rfid_number 
-		FROM user_drivers
-		INNER JOIN rfid_cards 
-		ON rfid_cards.user_driver_id = user_drivers.id
-		WHERE user_drivers.cpo_owner_id = (SELECT id FROM cpo_owners WHERE user_id = ?)
-		LIMIT ? OFFSET ?`;
+		const QUERY = `
+			SELECT 
+				ROW_NUMBER() OVER () AS 'row_number', 
+				user_drivers.id, 
+				name, 
+				address, 
+				email, 
+				mobile_number, 
+				balance, 
+				rfid_card_tag AS rfid_number 
+			FROM 
+				user_drivers
+			INNER JOIN rfid_cards ON rfid_cards.user_driver_id = user_drivers.id
+			WHERE 
+				user_drivers.cpo_owner_id = (SELECT id FROM cpo_owners WHERE user_id = ?)
+			LIMIT ? OFFSET ?
+		`;
 
 		return new Promise((resolve, reject) => {
 			mysql.query(
@@ -32,21 +37,26 @@ module.exports = class RFIDUsersRepository {
 	}
 
 	FilterRFIDUserByRFIDOrContactNumber({ user_id, filter, limit, offset }) {
-		const QUERY = `SELECT ROW_NUMBER() OVER () AS 'row_number', 
-		user_drivers.id, 
-		name, address, 
-		email, 
-		mobile_number, 
-		balance, 
-		rfid_card_tag AS rfid_number 
-		FROM user_drivers
-		INNER JOIN rfid_cards 
-		ON rfid_cards.user_driver_id = user_drivers.id
-		WHERE user_drivers.cpo_owner_id = (SELECT id FROM cpo_owners WHERE user_id = ?)
-		AND rfid_card_tag LIKE '${filter}%' OR mobile_number = '${Crypto.Encrypt(
+		const QUERY = `
+			SELECT 
+				ROW_NUMBER() OVER () AS 'row_number', 
+				user_drivers.id, 
+				name, 
+				address, 
+				email, 
+				mobile_number, 
+				balance, 
+				rfid_card_tag AS rfid_number 
+			FROM 
+				user_drivers
+			INNER JOIN rfid_cards ON rfid_cards.user_driver_id = user_drivers.id
+			WHERE 
+				user_drivers.cpo_owner_id = (SELECT id FROM cpo_owners WHERE user_id = ?)
+				AND rfid_card_tag LIKE '${filter}%' OR mobile_number = '${Crypto.Encrypt(
 			filter
 		)}'
-		LIMIT ? OFFSET ?`;
+			LIMIT ? OFFSET ?
+		`;
 
 		return new Promise((resolve, reject) => {
 			mysql.query(QUERY, [user_id, limit, offset], (err, result) => {
@@ -74,7 +84,8 @@ module.exports = class RFIDUsersRepository {
 	}
 
 	GetUserByID(cpoOwnerID, userID) {
-		const QUERY = `SELECT 
+		const QUERY = `
+		SELECT 
 			users.id,
 			name,
 			address,
@@ -85,14 +96,14 @@ module.exports = class RFIDUsersRepository {
 			model AS vehicle_model,
 			brand AS vehicle_brand,
 			username
-		FROM users
-		INNER JOIN user_drivers
-		ON users.id = user_drivers.user_id
-		INNER JOIN user_driver_vehicles
-		ON user_drivers.id = user_driver_vehicles.user_driver_id
-		WHERE user_drivers.cpo_owner_id = (SELECT id FROM cpo_owners WHERE user_id = ?)
-		AND users.id = ?
-		AND users.role NOT IN ('CPO_OWNER', 'ADMIN');`;
+		FROM 
+			users
+		INNER JOIN user_drivers ON users.id = user_drivers.user_id
+		INNER JOIN user_driver_vehicles ON user_drivers.id = user_driver_vehicles.user_driver_id
+		WHERE 
+			user_drivers.cpo_owner_id = (SELECT id FROM cpo_owners WHERE user_id = ?)
+			AND users.id = ?
+			AND users.role NOT IN ('CPO_OWNER', 'ADMIN');`;
 
 		return new Promise((resolve, reject) => {
 			mysql.query(QUERY, [cpoOwnerID, userID], (err, result) => {
@@ -106,11 +117,15 @@ module.exports = class RFIDUsersRepository {
 	}
 
 	UpdateUserByID({ user_id, query }) {
-		const QUERY = `UPDATE users AS u
-		INNER JOIN user_drivers AS ud ON u.id = ud.user_id
-		INNER JOIN user_driver_vehicles AS udv ON ud.id = udv.user_driver_id 
-		${query} WHERE u.id = ?
-	`;
+		const QUERY = `
+			UPDATE 
+				users AS u
+			INNER JOIN user_drivers AS ud ON u.id = ud.user_id
+			INNER JOIN user_driver_vehicles AS udv ON ud.id = udv.user_driver_id 
+			${query} 
+			WHERE 
+				u.id = ?
+		`;
 
 		return new Promise((resolve, reject) => {
 			mysql.query(QUERY, [user_id], (err, result) => {
@@ -124,9 +139,14 @@ module.exports = class RFIDUsersRepository {
 	}
 
 	UpdateUserAccountStatusByID({ status, user_id }) {
-		const QUERY = `UPDATE users
-		SET user_status = ?, date_modified = NOW()
-		WHERE id = ?`;
+		const QUERY = `
+			UPDATE 
+				users
+			SET 
+				user_status = ?, 
+				date_modified = NOW()
+			WHERE id = ?
+		`;
 
 		return new Promise((resolve, reject) => {
 			mysql.query(QUERY, [status, user_id], (err, result) => {

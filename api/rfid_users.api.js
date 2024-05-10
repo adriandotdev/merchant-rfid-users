@@ -50,12 +50,17 @@ module.exports = (app) => {
 		 * @param {import('express').Request} req
 		 * @param {import('express').Response} res
 		 */
-		async (req, res) => {
-			logger.info({ GET_RFID_USERS_API_REQUEST: { message: "SUCCESS" } });
-
-			const { limit, offset } = req.query;
-
+		async (req, res, next) => {
 			try {
+				const { limit, offset } = req.query;
+
+				logger.info({
+					GET_RFID_USERS_API_REQUEST: {
+						data: { limit, offset },
+						message: "SUCCESS",
+					},
+				});
+
 				if (req.role !== "CPO_OWNER") throw new HttpForbidden("Forbidden", []);
 
 				const result = await service.GetRFIDUsers({
@@ -70,17 +75,11 @@ module.exports = (app) => {
 					"Offset-Link",
 					req.protocol + "://" + req.headers.host + "" + req.originalUrl
 				);
+
 				return res.status(200).json({ status: 200, data: result });
 			} catch (err) {
-				logger.error({ GET_RFID_USERS_API_ERROR: { message: err.message } });
-
-				logger.error(err);
-
-				return res.status(err.status || 500).json({
-					status: err.status || 500,
-					data: err.data || [],
-					message: err.message || "Internal Server Error",
-				});
+				req.error_name = "GET_RFID_USERS_API_ERROR";
+				next(err);
 			}
 		}
 	);
@@ -100,10 +99,21 @@ module.exports = (app) => {
 		 * @param {import('express').Request} req
 		 * @param {import('express').Response} res
 		 */
-		async (req, res) => {
-			const { filter, limit, offset } = req.query;
-
+		async (req, res, next) => {
 			try {
+				const { filter, limit, offset } = req.query;
+
+				logger.info({
+					GET_RFID_USERS_API_REQUEST: {
+						data: {
+							filter,
+							limit,
+							offset,
+						},
+						message: "SUCCESS",
+					},
+				});
+
 				if (req.role !== "CPO_OWNER") throw new HttpForbidden("Forbidden", []);
 
 				const result = await service.FilterRFIDUsers({
@@ -113,17 +123,16 @@ module.exports = (app) => {
 					offset: offset || 0,
 				});
 
+				logger.info({
+					GET_RFID_USERS_API_RESPONSE: {
+						message: "SUCCESS",
+					},
+				});
+
 				return res.status(200).json({ status: 200, data: result });
 			} catch (err) {
-				logger.error({ GET_RFID_USERS_API_ERROR: { message: err.message } });
-
-				logger.error(err);
-
-				return res.status(err.status || 500).json({
-					status: err.status || 500,
-					data: err.data || [],
-					message: err.message || "Internal Server Error",
-				});
+				req.error_name = "GET_RFID_USERS_API_ERROR";
+				next(err);
 			}
 		}
 	);
@@ -199,14 +208,14 @@ module.exports = (app) => {
 		 * @param {import('express').Request} req
 		 * @param {import('express').Response} res
 		 */
-		async (req, res) => {
-			logger.info({
-				ADD_RFID_ACCOUNTS_REQUEST: {
-					message: "SUCCESS",
-				},
-			});
-
+		async (req, res, next) => {
 			try {
+				logger.info({
+					ADD_RFID_ACCOUNTS_REQUEST: {
+						message: "SUCCESS",
+					},
+				});
+
 				if (req.role !== "CPO_OWNER") throw new HttpForbidden("Forbidden", []);
 
 				validate(req, res);
@@ -226,15 +235,8 @@ module.exports = (app) => {
 					.status(200)
 					.json({ status: 200, data: result, message: "Success" });
 			} catch (err) {
-				logger.error({ ADD_RFID_ACCOUNTS_ERROR: { message: err.message } });
-
-				logger.error(err);
-
-				return res.status(err.status || 500).json({
-					status: err.status || 500,
-					data: err.data || [],
-					message: err.message || "Internal Server Error",
-				});
+				req.error_name = "ADD_RFID_ACCOUNTS_ERROR";
+				next(err);
 			}
 		}
 	);
@@ -309,8 +311,18 @@ module.exports = (app) => {
 		 * @param {import('express').Request} req
 		 * @param {import('express').Response} res
 		 */
-		async (req, res) => {
+		async (req, res, next) => {
 			try {
+				logger.info({
+					UPDATE_RFID_USER_BY_ID: {
+						data: {
+							...req.params,
+							...req.body,
+						},
+						message: "SUCCESS",
+					},
+				});
+
 				if (req.role !== "CPO_OWNER") throw new HttpForbidden("Forbidden", []);
 
 				validate(req, res);
@@ -322,19 +334,19 @@ module.exports = (app) => {
 					user_id,
 					data,
 				});
+
+				logger.info({
+					UPDATE_RFID_USER_BY_ID: {
+						message: "SUCCESS",
+					},
+				});
+
 				return res
 					.status(200)
 					.json({ status: 200, data: result, message: "Success" });
 			} catch (err) {
-				logger.error({ UPDATE_RFID_USER_ERROR: { message: err.message } });
-
-				logger.error(err);
-
-				return res.status(err.status || 500).json({
-					status: err.status || 500,
-					data: err.data || [],
-					message: err.message || "Internal Server Error",
-				});
+				req.error_name = "UPDATE_RFID_USER_BY_ID_ERROR";
+				next(err);
 			}
 		}
 	);
@@ -354,13 +366,17 @@ module.exports = (app) => {
 		 * @param {import('express').Request} req
 		 * @param {import('express').Response} res
 		 */
-		async (req, res) => {
+		async (req, res, next) => {
+			const { user_id } = req.params;
+
 			logger.info({
 				GET_RFID_USER_BY_ID_REQUEST: {
+					data: {
+						user_id,
+					},
 					message: "SUCCESS",
 				},
 			});
-			const { user_id } = req.params;
 
 			try {
 				if (req.role !== "CPO_OWNER") throw new HttpForbidden("Forbidden", []);
@@ -374,22 +390,16 @@ module.exports = (app) => {
 
 				logger.info({
 					GET_RFID_USER_BY_ID_RESPONSE: {
-						user,
+						message: "SUCCESS",
 					},
 				});
+
 				return res
 					.status(200)
 					.json({ status: 200, data: user, message: "Success" });
 			} catch (err) {
-				logger.error({ GET_RFID_USER_BY_ID_ERROR: { message: err.message } });
-
-				logger.error(err);
-
-				return res.status(err.status || 500).json({
-					status: err.status || 500,
-					data: err.data || [],
-					message: err.message || "Internal Server Error",
-				});
+				req.error_name = "GET_RFID_USER_BY_ID_ERROR";
+				next(err);
 			}
 		}
 	);
@@ -407,15 +417,15 @@ module.exports = (app) => {
 		 * @param {import('express').Request} req
 		 * @param {import('express').Response} res
 		 */
-		async (req, res) => {
-			logger.info({
-				UPDATE_RFID_USER_STATUS: {
-					status: req.params.status,
-					user_id: req.params.user_id,
-				},
-			});
-
+		async (req, res, next) => {
 			try {
+				logger.info({
+					UPDATE_RFID_USER_STATUS: {
+						status: req.params.status,
+						user_id: req.params.user_id,
+					},
+				});
+
 				if (req.role !== "CPO_OWNER") throw new HttpForbidden("Forbidden", []);
 
 				const { status, user_id } = req.params;
@@ -425,22 +435,42 @@ module.exports = (app) => {
 					user_id,
 				});
 
-				logger.info({ UPDATE_RFID_USER_STATUS_RESPONSE: { result } });
+				logger.info({
+					UPDATE_RFID_USER_STATUS_RESPONSE: { message: "SUCCESS" },
+				});
 
 				return res
 					.status(200)
 					.json({ status: 200, data: result, message: "Success" });
 			} catch (err) {
-				logger.error({ UPDATE_RFID_USER_ERROR: { message: err.message } });
-
-				logger.error(err);
-
-				return res.status(err.status || 500).json({
-					status: err.status || 500,
-					data: err.data || [],
-					message: err.message || "Internal Server Error",
-				});
+				req.error_name = "UPDATE_RFID_USER_STATUS_ERROR";
+				next(err);
 			}
 		}
 	);
+
+	app.use((err, req, res, next) => {
+		logger.error({
+			API_REQUEST_ERROR: {
+				error_name: req.error_name || "UNKNOWN_ERROR",
+				message: err.message,
+				stack: err.stack.replace(/\\/g, "/"), // Include stack trace for debugging
+				request: {
+					method: req.method,
+					url: req.url,
+					code: err.status || 500,
+				},
+				data: err.data || [],
+			},
+		});
+
+		const status = err.status || 500;
+		const message = err.message || "Internal Server Error";
+
+		res.status(status).json({
+			status,
+			data: err.data || [],
+			message,
+		});
+	});
 };
