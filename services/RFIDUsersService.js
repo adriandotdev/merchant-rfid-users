@@ -12,10 +12,7 @@ const RFIDUsersRepository = require("../repository/RFIDUsersRepository");
 const pwGenerator = require("generate-password");
 const Crypto = require("../utils/Crypto");
 const Email = require("../utils/Email");
-const {
-	HttpBadRequest,
-	HttpInternalServerError,
-} = require("../utils/HttpError");
+const { HttpBadRequest } = require("../utils/HttpError");
 
 module.exports = class RFIDUsersService {
 	/**
