@@ -2,6 +2,29 @@ const mysql = require("../database/mysql");
 const Crypto = require("../utils/Crypto");
 
 module.exports = class RFIDUsersRepository {
+	/**
+	 * Retrieves a list of RFID users associated with a specific CPO owner.
+	 *
+	 * This function fetches RFID user details such as ID, name, address, email, mobile number, balance,
+	 * and RFID card tag by joining `user_drivers` and `rfid_cards` tables. It limits the results based
+	 * on the provided limit and offset values.
+	 *
+	 * @function GetRFIDUsers
+	 * @param {Object} params - Parameters for retrieving RFID users.
+	 * @param {number} params.user_id - The ID of the user.
+	 * @param {number} params.limit - The maximum number of records to return.
+	 * @param {number} params.offset - The number of records to skip before starting to return records.
+	 * @returns {Promise<Object[]>} A promise that resolves to an array of objects, each representing an RFID user.
+	 * @property {number} row_number - The row number in the result set.
+	 * @property {number} id - The ID of the RFID user.
+	 * @property {string} name - The name of the RFID user.
+	 * @property {string} address - The address of the RFID user.
+	 * @property {string} email - The email of the RFID user.
+	 * @property {string} mobile_number - The mobile number of the RFID user.
+	 * @property {number} balance - The balance of the RFID user.
+	 * @property {string} rfid_number - The RFID card tag of the RFID user.
+	 * @throws {Error} If an error occurs during the query execution.
+	 */
 	GetRFIDUsers({ user_id, limit, offset }) {
 		const QUERY = `
 			SELECT 
@@ -36,6 +59,31 @@ module.exports = class RFIDUsersRepository {
 		});
 	}
 
+	/**
+	 * Filters RFID users by RFID card tag or contact number.
+	 *
+	 * This function retrieves RFID user details such as ID, name, address, email, mobile number, balance,
+	 * and RFID card tag by joining `user_drivers` and `rfid_cards` tables. It applies filters based on
+	 * the provided RFID card tag or contact number, and limits the results based on the provided limit
+	 * and offset values.
+	 *
+	 * @function FilterRFIDUserByRFIDOrContactNumber
+	 * @param {Object} params - Parameters for filtering RFID users.
+	 * @param {number} params.user_id - The ID of the user.
+	 * @param {string} params.filter - The filter value for RFID card tag or contact number.
+	 * @param {number} params.limit - The maximum number of records to return.
+	 * @param {number} params.offset - The number of records to skip before starting to return records.
+	 * @returns {Promise<Object[]>} A promise that resolves to an array of objects, each representing a filtered RFID user.
+	 * @property {number} row_number - The row number in the result set.
+	 * @property {number} id - The ID of the RFID user.
+	 * @property {string} name - The name of the RFID user.
+	 * @property {string} address - The address of the RFID user.
+	 * @property {string} email - The email of the RFID user.
+	 * @property {string} mobile_number - The mobile number of the RFID user.
+	 * @property {number} balance - The balance of the RFID user.
+	 * @property {string} rfid_number - The RFID card tag of the RFID user.
+	 * @throws {Error} If an error occurs during the query execution.
+	 */
 	FilterRFIDUserByRFIDOrContactNumber({ user_id, filter, limit, offset }) {
 		const QUERY = `
 			SELECT 
@@ -69,6 +117,24 @@ module.exports = class RFIDUsersRepository {
 		});
 	}
 
+	/**
+	 * Adds an RFID account.
+	 *
+	 * This function calls the stored procedure WEB_ADMIN_ADD_RFID_ACCOUNT to add an RFID account
+	 * with the provided data. It accepts an object containing data for the RFID account, including
+	 * cpo_owner_id, user_driver_id, rfid_card_tag, status, date_created, and date_modified.
+	 *
+	 * @function AddRFIDAccount
+	 * @param {Object} data - Data for the RFID account.
+	 * @param {number} data.cpo_owner_id - The ID of the CPO owner.
+	 * @param {number} data.user_driver_id - The ID of the user driver.
+	 * @param {string} data.rfid_card_tag - The RFID card tag.
+	 * @param {string} data.status - The status of the RFID account.
+	 * @param {Date} data.date_created - The date when the RFID account was created.
+	 * @param {Date} data.date_modified - The date when the RFID account was last modified.
+	 * @returns {Promise<Object>} A promise that resolves to the result of adding the RFID account.
+	 * @throws {Error} If an error occurs during the query execution.
+	 */
 	AddRFIDAccount(data) {
 		const QUERY = `CALL WEB_ADMIN_ADD_RFID_ACCOUNT(?,?,?,?,?,?,?,?,?,?,?)`;
 
@@ -83,6 +149,19 @@ module.exports = class RFIDUsersRepository {
 		});
 	}
 
+	/**
+	 * Retrieves user details by user ID under a specific CPO owner.
+	 *
+	 * This function fetches details of a user, including their name, address, email address,
+	 * mobile number, RFID, vehicle plate number, vehicle model, vehicle brand, and username,
+	 * based on the provided user ID and CPO owner ID.
+	 *
+	 * @function GetUserByID
+	 * @param {number} cpoOwnerID - The ID of the CPO owner.
+	 * @param {number} userID - The ID of the user.
+	 * @returns {Promise<Array>} A promise that resolves to an array containing user details.
+	 * @throws {Error} If an error occurs during the query execution.
+	 */
 	GetUserByID(cpoOwnerID, userID) {
 		const QUERY = `
 		SELECT 
@@ -116,6 +195,18 @@ module.exports = class RFIDUsersRepository {
 		});
 	}
 
+	/**
+	 * Updates user details by user ID.
+	 *
+	 * This function updates user details based on the provided user ID and a custom SQL query.
+	 *
+	 * @function UpdateUserByID
+	 * @param {Object} data - An object containing user ID and a custom SQL query.
+	 * @param {number} data.user_id - The ID of the user.
+	 * @param {string} data.query - The custom SQL query for updating user details.
+	 * @returns {Promise<Object>} A promise that resolves to the result of the update operation.
+	 * @throws {Error} If an error occurs during the query execution.
+	 */
 	UpdateUserByID({ user_id, query }) {
 		const QUERY = `
 			UPDATE 
@@ -138,6 +229,18 @@ module.exports = class RFIDUsersRepository {
 		});
 	}
 
+	/**
+	 * Updates user account status by user ID.
+	 *
+	 * This function updates the account status of a user specified by the user ID.
+	 *
+	 * @function UpdateUserAccountStatusByID
+	 * @param {Object} data - An object containing the new status and the user ID.
+	 * @param {string} data.status - The new status to set for the user account.
+	 * @param {number} data.user_id - The ID of the user whose account status is to be updated.
+	 * @returns {Promise<Object>} A promise that resolves to the result of the update operation.
+	 * @throws {Error} If an error occurs during the query execution.
+	 */
 	UpdateUserAccountStatusByID({ status, user_id }) {
 		const QUERY = `
 			UPDATE 
